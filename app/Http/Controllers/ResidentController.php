@@ -9,19 +9,18 @@ use Illuminate\Validation\Rule;
 class ResidentController extends Controller
 {
     public function index () {
-        $Residents = Resident::all(); 
-
-        return view('pages.resident.index' , [
-            'residents' => $Residents, ]);
+        $residents = Resident::all(); // Mengambil semua data penduduk
+        return view('pages.resident.index', compact('residents'));
     }
 
-    public function store(request $request) 
-    { 
+    public function store(Request $request)
+    {
+        // Validasi input data
         $validated = $request->validate([
-            'nik' => ['required' , 'min:16', 'max:16'],
-            'name' => ['required', 100],
-            'gander' => ['required', Rule::in('male', 'female')],
-            'birth_date' => ['required', 'string'],
+            'nik' => ['required', 'min:16', 'max:16'],
+            'name' => ['required', 'max:100'],
+            'gender' => ['required', Rule::in('male', 'female')],
+            'birth_date' => ['required', 'date'],
             'birth_place' => ['required', 'max:100'],
             'address' => ['required', 'max:100'],
             'religion' => ['nullable', 'max:100'],
@@ -30,18 +29,31 @@ class ResidentController extends Controller
             'phone' => ['nullable', 'max:15'],
             'status' => ['required', Rule::in('active', 'moved', 'deceased')],
         ]);
-
-        Resident::create($request->validate());
-
-        return redirect('/resident')->with('succses', 'Berhasil menambah data');
+    
+        // Simpan data penduduk
+        $resident = Resident::create($validated);
+    
+        // Kirim pesan sukses ke session
+        return redirect('/resident')->with('success', 'Data penduduk berhasil ditambahkan');
     }
+    
 
-    public function update(request $request, $id) {
+    public function edit($id)
+    {
+        $resident = Resident::findOrFail($id);  // Ambil data berdasarkan ID
+        return view('pages.resident.edit', [
+            'resident' => $resident
+        ]);  // Kirim data ke tampilan edit
+    }
+    
+    public function update(Request $request, $id)
+    {
+        // Validasi input
         $validated = $request->validate([
-            'nik' => ['required' , 'min:16', 'max:16'],
-            'name' => ['required', 100],
-            'gander' => ['required', Rule::in('male', 'female')],
-            'birth_date' => ['required', 'string'],
+            'nik' => ['required', 'min:16', 'max:16'],
+            'name' => ['required', 'max:100'],
+            'gender' => ['required', Rule::in('male', 'female')],
+            'birth_date' => ['required', 'date'],
             'birth_place' => ['required', 'max:100'],
             'address' => ['required', 'max:100'],
             'religion' => ['nullable', 'max:100'],
@@ -50,27 +62,28 @@ class ResidentController extends Controller
             'phone' => ['nullable', 'max:15'],
             'status' => ['required', Rule::in('active', 'moved', 'deceased')],
         ]);
-
-        Resident::findOrFail($id)->update($request->validate());
-
-        return redirect('/resident')->with('succses', 'Berhasil mengupdate data');
+    
+        // Update data penduduk
+        $resident = Resident::findOrFail($id);
+        $resident->update($validated);
+    
+        // Kembali ke halaman index dengan pesan sukses
+        return redirect('/resident')->with('success', 'Data penduduk berhasil diperbarui');
     }
+    
 
     public function create () {
-        return view('pages.resident.crete');
+        return view('pages.resident.create');
     }
 
-    public function edit ($id) {
-        $Residents = Resident::findOrFail($id);
 
-        return view('pages.resident.edit', [
-            'resident' => $Residents]);
-    }
+    public function destroy($id)
+{
+    $resident = Resident::findOrFail($id); // Temukan data berdasarkan ID
+    $resident->delete();  // Hapus data penduduk
 
-    public function destroy ($id) {
-        $Residents = Resident::findOrFail($id);
-        $Residents ->delete();
+    // Kembali ke halaman index dengan pesan sukses
+    return redirect('/resident')->with('success', 'Data penduduk berhasil dihapus');
+}
 
-        return redirect('/resident')->with('success', 'Berhasil menghapus data');
-    }
 }

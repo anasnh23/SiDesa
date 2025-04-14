@@ -7,14 +7,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 Route::get('/dashboard', function () {
     return view('pages.dashboard');
 });
 
-Route::get('/resident', [ResidentController::class, 'index']);
+// Routes untuk data penduduk
+
+Route::get('/resident', [ResidentController::class, 'index'])->name('resident.index');
 Route::get('/resident/create', [ResidentController::class, 'create']);
-Route::get('/resident/{id}', [ResidentController::class, 'edit']);
-Route::post('resident', [ResidentController::class, 'store']);
-Route::put('/resident{id}', [ResidentController::class, 'update']);
-Route::delete('/resident{id}', [ResidentController::class, 'delete']);
+Route::post('/resident', [ResidentController::class, 'store'])->name('resident.store');
+Route::get('/resident/{id}/edit', [ResidentController::class, 'edit']);
+Route::put('/resident/{id}', [ResidentController::class, 'update'])->name('resident.update'); 
+Route::delete('/resident/{id}', [ResidentController::class, 'destroy']);
+
